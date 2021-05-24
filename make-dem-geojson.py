@@ -72,3 +72,7 @@ def make_geojson(available_dems):
     json.dump(jsonstr,wfile)
     wfile.flush()
     wfile.close()
+
+read_s3_10m()
+available_dems = read_usgs_list('10mTIFF.txt')
+make_geojson(available_dems)
