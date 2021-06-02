@@ -3,9 +3,12 @@ import glob
 import json
 from datetime import date
 
+USE_DOCKER = True
+
 def read_s3_10m():
-    devcmd = 'docker run -it amazon/aws-cli s3 ls  --no-sign-request --recursive s3://prd-tnm/StagedProducts/Elevation/13/TIFF/ | grep -e ".tif" > 10mTIFF.txt'
     cmd = 'aws s3 ls  --no-sign-request --recursive s3://prd-tnm/StagedProducts/Elevation/13/TIFF/ | grep -e ".tif" > 10mTIFF.txt'
+    if USE_DOCKER:
+        cmd = 'docker run -it amazon/aws-cli s3 ls  --no-sign-request --recursive s3://prd-tnm/StagedProducts/Elevation/13/TIFF/ | grep -e ".tif" > 10mTIFF.txt'
     os.system(devcmd)
 
 
