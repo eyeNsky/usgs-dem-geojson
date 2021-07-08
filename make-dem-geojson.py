@@ -9,7 +9,7 @@ def read_s3_10m():
     cmd = 'aws s3 ls  --no-sign-request --recursive s3://prd-tnm/StagedProducts/Elevation/13/TIFF/ | grep -e ".tif" > 10mTIFF.txt'
     if USE_DOCKER:
         cmd = 'docker run -it amazon/aws-cli s3 ls  --no-sign-request --recursive s3://prd-tnm/StagedProducts/Elevation/13/TIFF/ | grep -e ".tif" > 10mTIFF.txt'
-    os.system(devcmd)
+    os.system(cmd)
 
 
 def read_usgs_list(dem_list):
