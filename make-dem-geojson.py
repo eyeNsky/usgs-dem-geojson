@@ -6,9 +6,9 @@ from datetime import date
 USE_DOCKER = True
 
 def read_s3_10m():
-    cmd = 'aws s3 ls  --no-sign-request --recursive s3://prd-tnm/StagedProducts/Elevation/13/TIFF/ | grep -e ".tif" > 10mTIFF.txt'
+    cmd = 'aws s3 ls  --no-sign-request --recursive s3://prd-tnm/StagedProducts/Elevation/13/TIFF/current | grep -e ".tif" > 10mTIFF.txt'
     if USE_DOCKER:
-        cmd = 'docker run -it amazon/aws-cli s3 ls  --no-sign-request --recursive s3://prd-tnm/StagedProducts/Elevation/13/TIFF/ | grep -e ".tif" > 10mTIFF.txt'
+        cmd = 'docker run -it amazon/aws-cli s3 ls  --no-sign-request --recursive s3://prd-tnm/StagedProducts/Elevation/13/TIFF/current | grep -e ".tif" > 10mTIFF.txt'
     os.system(cmd)
 
 
@@ -18,17 +18,20 @@ def read_usgs_list(dem_list):
     dem_dict = {}
     for line in lines:
         line = line.split()
-        the_quad = line[3].split('/')[4]
-        the_tif = line[3].split('/')[5]
-        dem_dict[the_quad] = the_tif
+        print(line)
+        load_date = line[0]
+        the_quad = line[3].split('/')[5]
+        the_tif = line[3].split('/')[6]
+        dem_dict[the_quad] = the_tif, load_date
     return dem_dict
 
 def make_geojson(available_dems):
     fpName = 'USGS-dem-footprints'
-    the_date = date.today().strftime("%Y%m%d")
+    the_date = date.today().strftime("%Y-%m-%d")
     features = []
     loop = 0
     for k in available_dems:
+        the_tif, load_date = available_dems[k]
         ns = -1
         if k[0] == 'n':
             ns = 1
@@ -52,8 +55,9 @@ def make_geojson(available_dems):
         feat['id'] = loop
         prop = {}
         prop['Name'] = k
-        prop['URL'] = 'http://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/13/TIFF/%s/%s' % (k, available_dems[k])
-        prop['Extracted'] = date.today().strftime("%Y%m%d")
+        prop['URL'] = 'http://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/13/TIFF/current/%s/%s' % (k, the_tif)
+        prop['Extracted'] = the_date
+        prop['LoadDate'] = load_date
         #prop['Description']=basename
         feat['properties'] = prop
         geo = {}
